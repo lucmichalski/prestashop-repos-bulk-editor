@@ -3,30 +3,75 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 $client = new \Github\Client();
-$token = file_get_contents(__DIR__.'/token.txt');
+$token = file_get_contents(__DIR__ . '/token.txt');
 $client->authenticate($token, null, Github\Client::AUTH_HTTP_TOKEN);
 
-$content = file_get_contents(__DIR__.'/template.txt');
+$content = file_get_contents(__DIR__ . '/template.txt');
 $path = '.github/PULL_REQUEST_TEMPLATE.md';
 
 // to iterate
-$repositoryName = 'ps_shoppingcart';
+$repositoryName = 'welcome';
+
+// check fork exists
+try {
+    $repo = $client->api('repo')->show('matks', $repositoryName);
+} catch (Github\Exception\RuntimeException $e) {
+    echo 'Fork does not exist: ' . $repositoryName . ':' . $repositoryName . PHP_EOL;
+    die();
+}
+// @todo: create fork if it does not exist
+
+// find base branch on target repository
+$references = $client->api('gitData')->references()->branches('prestashop', $repositoryName);
+$branches = [];
+foreach ($references as $info) {
+    $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
+}
+$baseBranch = null;
+if (array_key_exists('dev', $branches)) {
+    $baseBranch = 'dev';
+}
+if (array_key_exists('develop', $branches)) {
+    $baseBranch = 'develop';
+}
+if (array_key_exists('master', $branches)) {
+    $baseBranch = 'master';
+}
+
+if ($baseBranch === null) {
+    echo 'Could not find base branch for repo prestashop :' . $repositoryName . PHP_EOL;
+    die();
+}
+
+// check branch exists on fork
+$references = $client->api('gitData')->references()->branches('matks', $repositoryName);
+foreach ($references as $info) {
+    $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
+}
+if (!array_key_exists($baseBranch, $branches)) {
+    echo 'Fork matks:' . $repositoryName . ' does not have branch ' . $baseBranch . PHP_EOL;
+    die();
+}
+
+echo sprintf(
+    'Creating PR for repo %s %s => %s',
+    $repositoryName,
+    'matks:' . $baseBranch,
+    'prestashop:' . $baseBranch
+);
 
 $commitMessage = 'Add Pull Request template for github';
-$branch = 'master';
-// @todo: check I forked repository before
-// @todo: check on my fork there is a master or dev branch
 $committer = array('name' => 'matks', 'email' => 'mathieu.ferment@prestashop.com');
 
 $fileInfo = $client->api('repo')->contents()
-    ->create('matks', $repositoryName, $path, $content, $commitMessage, $branch, $committer);
+    ->create('matks', $repositoryName, $path, $content, $commitMessage, $baseBranch, $committer);
 
-$message = 'This pull request a GitHub template for Pull Requests'.PHP_EOL.PHP_EOL.'This PR is created automatically'
+$message = 'This pull request a GitHub template for Pull Requests' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
     . ' by [Matks PrestaShop Repositories Bulk Editor](https://github.com/matks/prestashop-repos-bulk-editor)';
 
 $pullRequest = $client->api('pull_request')->create('prestashop', $repositoryName, array(
-    'base'  => 'master',
-    'head'  => 'matks:'.$branch,
+    'base' => $baseBranch,
+    'head' => 'matks:' . $baseBranch,
     'title' => 'Add GitHub PR template',
-    'body'  => $message
+    'body' => $message
 ));
