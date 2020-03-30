@@ -11,6 +11,7 @@ $path = '.github/PULL_REQUEST_TEMPLATE.md';
 
 // to iterate
 $repositoryName = 'welcome';
+$pullRequestTitle = 'Add GitHub PR template';
 
 // check fork exists
 try {
@@ -20,6 +21,11 @@ try {
     die();
 }
 // @todo: create fork if it does not exist
+
+// check there is no PR already doing the add
+
+
+
 
 // find base branch on target repository
 $references = $client->api('gitData')->references()->branches('prestashop', $repositoryName);
@@ -43,6 +49,13 @@ if ($baseBranch === null) {
     die();
 }
 
+$fileExists = $client->api('repo')->contents()
+    ->exists('prestashop', $repositoryName, $path, 'refs/heads/'.$baseBranch);
+if ($fileExists) {
+    echo 'Github template already exists for ' . $repositoryName . PHP_EOL;
+    die();
+}
+
 // check branch exists on fork
 $references = $client->api('gitData')->references()->branches('matks', $repositoryName);
 foreach ($references as $info) {
@@ -60,6 +73,8 @@ echo sprintf(
     'prestashop:' . $baseBranch
 );
 
+die("hahaha");
+
 $commitMessage = 'Add Pull Request template for github';
 $committer = array('name' => 'matks', 'email' => 'mathieu.ferment@prestashop.com');
 
@@ -72,6 +87,6 @@ $message = 'This pull request a GitHub template for Pull Requests' . PHP_EOL . P
 $pullRequest = $client->api('pull_request')->create('prestashop', $repositoryName, array(
     'base' => $baseBranch,
     'head' => 'matks:' . $baseBranch,
-    'title' => 'Add GitHub PR template',
+    'title' => $pullRequestTitle,
     'body' => $message
 ));
