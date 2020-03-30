@@ -14,11 +14,67 @@ $path = '.github/PULL_REQUEST_TEMPLATE.md';
 $pullRequestTitle = 'Add GitHub PR template';
 
 $modulesToProcess = [
-    'ps_facetedsearch',
-    'welcome',
-    'ps_shoppingcart',
+    'blockreassurance',
+    'contactform',
+    'dashactivity',
+    'dashgoals',
+    'dashproducts',
+    'dashtrends',
+    'graphnvd3',
+    'gridhtml',
+    'gsitemap',
+    'pagesnotfound',
+    'productcomments',
+    'ps_banner',
+    'ps_categorytree',
+    'ps_checkpayment',
+    'ps_contactinfo',
+    'ps_crossselling',
+    'ps_currencyselector',
+    'ps_customeraccountlinks',
+    'ps_customersignin',
+    'ps_customtext',
+    'ps_dataprivacy',
     'ps_emailsubscription',
-    'psgdpr'
+    'ps_facetedsearch',
+    'ps_faviconnotificationbo',
+    'ps_featuredproducts',
+    'ps_imageslider',
+    'ps_languageselector',
+    'ps_linklist',
+    'ps_mainmenu',
+    'ps_searchbar',
+    'ps_sharebuttons',
+    'ps_shoppingcart',
+    'ps_socialfollow',
+    'ps_themecusto',
+    'ps_wirepayment',
+    'sekeywords',
+    'statsbestcategories',
+    'statsbestcustomers',
+    'statsbestmanufacturers',
+    'statsbestproducts',
+    'statsbestsuppliers',
+    'statsbestvouchers',
+    'statscarrier',
+    'statscatalog',
+    'statscheckup',
+    'statsdata',
+    'statsequipment',
+    'statsforecast',
+    'statslive',
+    'statsnewsletter',
+    'statsorigin',
+    'statspersonalinfos',
+    'statsproduct',
+    'statsregistrations',
+    'statssales',
+    'statssearch',
+    'statsstock',
+    'statsvisits',
+    'welcome',
+    'psgdpr',
+    'pscleaner'
 ];
 
 foreach ($modulesToProcess as $moduleToProcess) {
@@ -74,7 +130,7 @@ foreach ($modulesToProcess as $moduleToProcess) {
         $repositoryName,
         'matks:' . $baseBranch,
         'prestashop:' . $baseBranch
-    );
+    ).PHP_EOL;
 
     createPullRequest($client, $repositoryName, $path, $content, $baseBranch, $pullRequestTitle);
 }
