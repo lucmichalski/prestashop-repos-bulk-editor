@@ -22,11 +22,6 @@ try {
 }
 // @todo: create fork if it does not exist
 
-// check there is no PR already doing the add
-
-
-
-
 // find base branch on target repository
 $references = $client->api('gitData')->references()->branches('prestashop', $repositoryName);
 $branches = [];
@@ -49,11 +44,21 @@ if ($baseBranch === null) {
     die();
 }
 
+// check template file does not already exist
 $fileExists = $client->api('repo')->contents()
     ->exists('prestashop', $repositoryName, $path, 'refs/heads/'.$baseBranch);
 if ($fileExists) {
     echo 'Github template already exists for ' . $repositoryName . PHP_EOL;
     die();
+}
+
+// check there is no PR already doing the add
+$pullRequests = $client->api('pull_request')->all('prestashop', $repositoryName, ['state' => 'all']);
+foreach ($pullRequests as $pullRequest) {
+    if ($pullRequest['title'] === $pullRequestTitle) {
+        echo 'PR already exists for ' . $repositoryName . PHP_EOL;
+        die();
+    }
 }
 
 // check branch exists on fork
