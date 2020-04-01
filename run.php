@@ -9,9 +9,11 @@ $client = new \Github\Client();
 $token = file_get_contents(__DIR__ . '/token.txt');
 $client->authenticate($token, null, Github\Client::AUTH_HTTP_TOKEN);
 
-$content = file_get_contents(__DIR__ . '/template.txt');
-$path = '.github/PULL_REQUEST_TEMPLATE.md';
-$pullRequestTitle = 'Add GitHub PR template';
+//$content = file_get_contents(__DIR__ . '/PULL_REQUEST_TEMPLATE.md');
+$content = file_get_contents(__DIR__ . '/release-drafter.yml');
+//$path = '.github/PULL_REQUEST_TEMPLATE.md';
+$path = '.github/release-drafter.yml';
+$pullRequestTitle = 'Enable Release Drafter';
 
 $modulesToProcess = [
     'blockreassurance',
@@ -73,7 +75,7 @@ $modulesToProcess = [
     'statsstock',
     'statsvisits',
     'welcome',
-    'psgdpr',
+    //'psgdpr',
     'pscleaner'
 ];
 
@@ -107,7 +109,7 @@ foreach ($modulesToProcess as $moduleToProcess) {
     $fileExists = $client->api('repo')->contents()
         ->exists('prestashop', $repositoryName, $path, 'refs/heads/' . $baseBranch);
     if ($fileExists) {
-        echo '* Github template already exists for ' . $repositoryName . PHP_EOL;
+        echo '* Target file already exists for ' . $repositoryName . PHP_EOL;
         continue;
     }
 

@@ -58,16 +58,15 @@ function checkBranchExistsOnFork($client, $repositoryName, $baseBranch)
  */
 function createPullRequest($client, $repositoryName, $path, $content, $baseBranch, $pullRequestTitle)
 {
-    $commitMessage = 'Add Pull Request template for github';
+    $commitMessage = $pullRequestTitle;
     $committer = array('name' => 'matks', 'email' => 'mathieu.ferment@prestashop.com');
 
     $fileInfo = $client->api('repo')->contents()
         ->create('matks', $repositoryName, $path, $content, $commitMessage, $baseBranch, $committer);
 
-    $message = 'This pull request a GitHub template for Pull Requests' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
+    $message = 'Allows the app to draft release when pushing to master' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
         . ' by [Matks PrestaShop Repositories Bulk Editor](https://github.com/matks/prestashop-repos-bulk-editor)';
 
-    // CHECK 1 check fork exists
     try {
         $pullRequest = $client->api('pull_request')->create('prestashop', $repositoryName, array(
             'base' => $baseBranch,
