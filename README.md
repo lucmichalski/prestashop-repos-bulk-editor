@@ -9,6 +9,7 @@ and create a PR to add files.
 Example of files:
 - `.github/PULL_REQUEST_TEMPLATE.md`
 - `.github/release-drafter.yml`
+- `LICENSE.md`
 
 # Usage
 
