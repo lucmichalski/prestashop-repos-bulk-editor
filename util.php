@@ -1,81 +1,102 @@
 <?php
 
 /**
- * Find base branch on target repository
- *
- * @param $client
+ * @param \Matks\PrestaShopRepoBulkEditor\BranchManager $branchManager
  * @param $repositoryName
- *
  * @return string
+ * @throws \Matks\PrestaShopRepoBulkEditor\ContinueException
  */
-function findBaseBranch($client, $repositoryName)
+function findBaseBranch(\Matks\PrestaShopRepoBulkEditor\BranchManager $branchManager, $repositoryName)
 {
-    $references = $client->api('gitData')->references()->branches('prestashop', $repositoryName);
-    $branches = [];
-    foreach ($references as $info) {
-        $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
-    }
+    $baseBranch = $branchManager->findRepositoryBaseBranch($repositoryName);
+    echo '* Found base branch ' . $baseBranch . ' for prestashop:' . $repositoryName . PHP_EOL;
 
-    if (array_key_exists('dev', $branches)) {
-        return 'dev';
+    if ($baseBranch === null) {
+        echo '* Could not find base branch for repo prestashop :' . $repositoryName . PHP_EOL;
+        throw new \Matks\PrestaShopRepoBulkEditor\ContinueException();
     }
-    if (array_key_exists('develop', $branches)) {
-        return 'develop';
-    }
-    if (array_key_exists('master', $branches)) {
-        return 'master';
-    }
-
-    return null;
+    return $baseBranch;
 }
 
 /**
- * @param $client
- * @param $repositoryName
- * @param $baseBranch
- *
- * @return bool
- */
-function checkBranchExistsOnFork($client, $repositoryName, $baseBranch)
-{
-    $references = $client->api('gitData')->references()->branches('matks', $repositoryName);
-    $branches = [];
-
-    foreach ($references as $info) {
-        $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
-    }
-
-    return array_key_exists($baseBranch, $branches);
-}
-
-/**
- * @param $client
+ * @param \Github\Client $client
  * @param $repositoryName
  * @param $path
- * @param $content
+ * @param $baseBranch
+ * @throws \Matks\PrestaShopRepoBulkEditor\ContinueException
+ */
+function checkFileExists(\Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager, $repositoryName, $path, $baseBranch)
+{
+    $fileExists = $filesManager->checkFileExists('prestashop', $repositoryName, $path, $baseBranch);
+    if ($fileExists) {
+        echo '* Target file already exists for ' . $repositoryName . PHP_EOL;
+        throw new \Matks\PrestaShopRepoBulkEditor\ContinueException();
+    }
+}
+
+/**
+ * @param \Matks\PrestaShopRepoBulkEditor\ForkManager $forkManager
+ * @param $repositoryName
+ */
+function checkForkExistsAndCreateIfNeeded(
+    \Matks\PrestaShopRepoBulkEditor\ForkManager $forkManager,
+    $repositoryName)
+{
+    $forkExists = $forkManager->checkForkExists($repositoryName);
+
+    if (!$forkExists) {
+        echo '* Fork does not exist | matks:' . $repositoryName . PHP_EOL;
+        echo '* Attempting to create fork ...' . PHP_EOL;
+        $forkManager->createFork($repositoryName);
+        echo '* Fork successfully created | matks:' . $repositoryName . PHP_EOL;
+    }
+}
+
+/**
+ * @param $repositoryName
  * @param $baseBranch
  * @param $pullRequestTitle
+ * @param \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager
+ * @param $path
+ * @param $content
+ * @param \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
+ * @throws \Github\Exception\MissingArgumentException
  */
-function createPullRequest($client, $repositoryName, $path, $content, $baseBranch, $pullRequestTitle)
+function createPRToCreateFile(
+    $repositoryName,
+    $baseBranch,
+    $pullRequestMessage,
+    $pullRequestTitle,
+    \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager,
+    $path,
+    $content,
+    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager)
 {
+    $debug = true;
+
+    echo sprintf(
+            '\o/ Creating PR for repo %s %s => %s',
+            $repositoryName,
+            'matks:' . $baseBranch,
+            'prestashop:' . $baseBranch
+        ) . PHP_EOL;
+
     $commitMessage = $pullRequestTitle;
-    $committer = array('name' => 'matks', 'email' => 'mathieu.ferment@prestashop.com');
 
-    $fileInfo = $client->api('repo')->contents()
-        ->create('matks', $repositoryName, $path, $content, $commitMessage, $baseBranch, $committer);
+    if ($debug) {
+        echo ' - Create file on repo'.PHP_EOL;
+    }
 
-    $message = 'Allows the app to draft release when pushing to master' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
-        . ' by [Matks PrestaShop Repositories Bulk Editor](https://github.com/matks/prestashop-repos-bulk-editor)';
+    $fileInfo = $filesManager->createFileOnRepo('matks', $repositoryName, $path, $content, $commitMessage, $baseBranch);
+
+    if ($debug) {
+        echo ' - Create PR'.PHP_EOL;
+    }
 
     try {
-        $pullRequest = $client->api('pull_request')->create('prestashop', $repositoryName, array(
-            'base' => $baseBranch,
-            'head' => 'matks:' . $baseBranch,
-            'title' => $pullRequestTitle,
-            'body' => $message
-        ));
+        $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
     } catch (Github\Exception\RuntimeException $e) {
         echo '!!! Failed to create PR for prestashop:' . $repositoryName . PHP_EOL;
     }
-
 }
+
