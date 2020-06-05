@@ -13,4 +13,10 @@ Example of files:
 
 # Usage
 
-Put a GitHub token in file `token.txt` then run `$ php run.php`
+## Create missing file
+
+Put a GitHub token in file `token.txt` then run `$ php create-missing-file.php`
+
+## Generate contributors list
+
+Put a GitHub token in file `token.txt` then run `$ php create-contributors.php`
