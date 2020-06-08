@@ -84,13 +84,13 @@ function createPRToCreateFile(
     $commitMessage = $pullRequestTitle;
 
     if ($debug) {
-        echo ' - Create file on repo'.PHP_EOL;
+        echo ' - Create file on repo' . PHP_EOL;
     }
 
     $fileInfo = $filesManager->createFileOnRepo('matks', $repositoryName, $path, $content, $commitMessage, $baseBranch);
 
     if ($debug) {
-        echo ' - Create PR'.PHP_EOL;
+        echo ' - Create PR' . PHP_EOL;
     }
 
     try {
@@ -100,3 +100,27 @@ function createPRToCreateFile(
     }
 }
 
+function createPRToMergeBranch(
+    $repositoryName,
+    $baseBranch,
+    $pullRequestMessage,
+    $pullRequestTitle,
+    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager)
+{
+    $debug = true;
+
+    echo sprintf(
+            '\o/ Creating PR for repo %s %s => %s',
+            $repositoryName,
+            'matks:' . $baseBranch,
+            'prestashop:' . $baseBranch
+        ) . PHP_EOL;
+
+    $commitMessage = $pullRequestTitle;
+
+    try {
+        $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
+    } catch (Github\Exception\RuntimeException $e) {
+        echo '!!! Failed to create PR for prestashop:' . $repositoryName . PHP_EOL;
+    }
+}
