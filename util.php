@@ -119,8 +119,24 @@ function createPRToMergeBranch(
     $commitMessage = $pullRequestTitle;
 
     try {
-        $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
+        $result = $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
+
+
+        echo printClickableLink($result['html_url'], 'PR '.$result['number'].' created on prestashop:'.$repositoryName).PHP_EOL;
     } catch (Github\Exception\RuntimeException $e) {
         echo '!!! Failed to create PR for prestashop:' . $repositoryName . PHP_EOL;
     }
+}
+
+
+
+/**
+ * @param string $link
+ * @param string $text
+ *
+ * @return string
+ */
+function printClickableLink($link, $text)
+{
+    return "\033]8;;" . $link . "\033\\" . $text . "\033]8;;\033\\";
 }

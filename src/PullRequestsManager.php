@@ -66,5 +66,7 @@ class PullRequestsManager
             'title' => $pullRequestTitle,
             'body' => $message
         ));
+
+        return $pullRequest;
     }
 }
