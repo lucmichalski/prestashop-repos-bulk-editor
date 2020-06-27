@@ -9,16 +9,8 @@ $client = new \Github\Client();
 $token = file_get_contents(__DIR__ . '/token.txt');
 $client->authenticate($token, null, Github\Client::AUTH_HTTP_TOKEN);
 
-$pullRequestTitle = 'Fix outdated license headers';
-$pullRequestMessage = 'Fix outdated license headers' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
-    . ' by [Matks PrestaShop Repositories Bulk Editor](https://github.com/matks/prestashop-repos-bulk-editor)';
-
-
 $forkManager = new \Matks\PrestaShopRepoBulkEditor\ForkManager($client);
 $branchManager = new \Matks\PrestaShopRepoBulkEditor\BranchManager($client);
-$filesManager = new \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager($client);
-$pullRequestManager = new \Matks\PrestaShopRepoBulkEditor\PullRequestsManager($client);
-$licenseHeaderFixer = new \Matks\PrestaShopRepoBulkEditor\LicenseHeaderFixer($client);
 
 $modulesToProcess = require_once __DIR__ . '/modulesList.php';
 
@@ -37,28 +29,25 @@ foreach ($modulesToProcess as $moduleToProcess) {
         continue;
     }
 
-    // CHECK 3 the right branch exists on fork
+    // CHECK 2 the right branch exists on fork
     $branchAlreadyExists = $branchManager->checkBranchExistsWithName('matks', $repositoryName, $baseBranch);
     if (!$branchAlreadyExists) {
         echo '* Fork matks:' . $repositoryName . ' does not have branch ' . $baseBranch . PHP_EOL;
-        continue;
-    }
-
-    // CHECK 4 check there is no PR already doing the add
-    $pullRequestExists = $pullRequestManager->checkPRExistsWithName('prestashop', $repositoryName, $pullRequestTitle);
-    if ($pullRequestExists) {
-        echo '* PR already exists for ' . $repositoryName . PHP_EOL;
-        continue;
+        $needToDeleteBranch = false;
+    } else {
+        echo '* Fork matks:' . $repositoryName . ' has branch ' . $baseBranch . PHP_EOL;
+        $needToDeleteBranch = true;
     }
 
     // READY TO WORK
-    $licenseHeaderFixer->scanDir($repositoryName, $baseBranch);
 
-    createPRToMergeBranch(
-        $repositoryName,
-        $baseBranch,
-        $pullRequestMessage,
-        $pullRequestTitle,
-        $pullRequestManager
-    );
+    // delete fork branch
+    if ($needToDeleteBranch) {
+        $branchManager->deleteBranch('matks', $repositoryName, $baseBranch);
+        echo '* Deleted branch ' . $baseBranch . ' for fork matks:' . $repositoryName . PHP_EOL;
+    }
+
+    $branchDeleted = $branchManager->pullUpstreamBranchIntoFork('matks', $repositoryName, $baseBranch);
+    echo '* Created branch ' . $baseBranch . ' for fork matks:' . $repositoryName .
+        ' from upstream' . PHP_EOL;
 }

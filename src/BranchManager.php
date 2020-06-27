@@ -45,4 +45,70 @@ class BranchManager
 
         return null;
     }
+
+    /**
+     * @param $username
+     * @param $repositoryName
+     * @param $baseBranch
+     *
+     * @return bool
+     */
+    public function checkBranchExistsWithName($username, $repositoryName, $branch)
+    {
+        $references = $this->client->api('gitData')->references()->branches($username, $repositoryName);
+        $branches = [];
+
+        foreach ($references as $info) {
+            $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
+        }
+
+        return array_key_exists($branch, $branches);
+    }
+
+    /**
+     * @param string $username
+     * @param string $repositoryName
+     * @param string $branchName
+     *
+     * @return bool
+     */
+    public function deleteBranch($username, $repositoryName, $branchName)
+    {
+        $result = $this->client->api('gitData')->references()->remove(
+            $username,
+            $repositoryName,
+            'heads/' . $branchName
+        );
+    }
+
+    /**
+     * @param string $username
+     * @param string $repositoryName
+     * @param string $branchName
+     *
+     * @return bool
+     */
+    public function pullUpstreamBranchIntoFork($username, $repositoryName, $branchName)
+    {
+        $upstreamReferenceData = $this->client->api('gitData')->references()->show(
+            'prestashop',
+            $repositoryName,
+            'heads/' . $branchName
+        );
+
+        $sha = $upstreamReferenceData['object']['sha'];
+
+        $forkReferenceDataInput = [
+            'ref' => 'refs/heads/'.$branchName,
+            'sha' => $sha
+        ];
+
+        $forkReferenceData = $this->client->api('gitData')->references()->create(
+            $username,
+            $repositoryName,
+            $forkReferenceDataInput
+        );
+
+        return true;
+    }
 }
