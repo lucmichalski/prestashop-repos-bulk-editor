@@ -77,6 +77,3 @@ foreach ($modulesToProcess as $moduleToProcess) {
         $pullRequestManager
     );
 }
-
-
-

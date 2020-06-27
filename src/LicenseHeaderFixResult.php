@@ -3,7 +3,6 @@
 
 namespace Matks\PrestaShopRepoBulkEditor;
 
-
 class LicenseHeaderFixResult
 {
     const FIXED_FILE = 1;

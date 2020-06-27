@@ -63,6 +63,3 @@ foreach ($modulesToProcess as $moduleToProcess) {
     // READY TO WORK
     createPRToCreateFile($repositoryName, $baseBranch, $pullRequestMessage, $pullRequestTitle, $filesManager, $path, $content, $pullRequestManager);
 }
-
-
-

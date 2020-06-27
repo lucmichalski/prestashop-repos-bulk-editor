@@ -40,7 +40,8 @@ function checkFileExists(\Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager 
  */
 function checkForkExistsAndCreateIfNeeded(
     \Matks\PrestaShopRepoBulkEditor\ForkManager $forkManager,
-    $repositoryName)
+    $repositoryName
+)
 {
     $forkExists = $forkManager->checkForkExists($repositoryName);
 
@@ -70,16 +71,17 @@ function createPRToCreateFile(
     \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager,
     $path,
     $content,
-    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager)
+    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
+)
 {
     $debug = true;
 
     echo sprintf(
-            '\o/ Creating PR for repo %s %s => %s',
-            $repositoryName,
-            'matks:' . $baseBranch,
-            'prestashop:' . $baseBranch
-        ) . PHP_EOL;
+        '\o/ Creating PR for repo %s %s => %s',
+        $repositoryName,
+        'matks:' . $baseBranch,
+        'prestashop:' . $baseBranch
+    ) . PHP_EOL;
 
     $commitMessage = $pullRequestTitle;
 
@@ -105,16 +107,17 @@ function createPRToMergeBranch(
     $baseBranch,
     $pullRequestMessage,
     $pullRequestTitle,
-    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager)
+    \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
+)
 {
     $debug = true;
 
     echo sprintf(
-            '\o/ Creating PR for repo %s %s => %s',
-            $repositoryName,
-            'matks:' . $baseBranch,
-            'prestashop:' . $baseBranch
-        ) . PHP_EOL;
+        '\o/ Creating PR for repo %s %s => %s',
+        $repositoryName,
+        'matks:' . $baseBranch,
+        'prestashop:' . $baseBranch
+    ) . PHP_EOL;
 
     $commitMessage = $pullRequestTitle;
 

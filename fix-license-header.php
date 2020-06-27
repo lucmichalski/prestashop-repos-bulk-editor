@@ -54,13 +54,11 @@ foreach ($modulesToProcess as $moduleToProcess) {
     // READY TO WORK
     $licenseHeaderFixer->scanDir($repositoryName, $baseBranch);
 
-    createPRToMergeBranch($repositoryName,
+    createPRToMergeBranch(
+        $repositoryName,
         $baseBranch,
         $pullRequestMessage,
         $pullRequestTitle,
         $pullRequestManager
     );
 }
-
-
-

@@ -28,7 +28,8 @@ class ForkManager
      */
     public function checkForkExists(
         $repositoryName,
-        $githubUsernameForker = 'matks')
+        $githubUsernameForker = 'matks'
+    )
     {
         try {
             $repo = $this->client->api('repo')->show($githubUsernameForker, $repositoryName);
@@ -46,7 +47,8 @@ class ForkManager
      */
     public function createFork(
         $repositoryName,
-        $githubUsernameOriginal = 'prestashop')
+        $githubUsernameOriginal = 'prestashop'
+    )
     {
         $fork = $this->client->api('repo')->forks()->create($githubUsernameOriginal, $repositoryName);
 

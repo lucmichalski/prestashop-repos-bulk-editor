@@ -118,7 +118,6 @@ class LicenseHeaderFixer
                 $baseBranch,
                 $committer
             );
-
     }
 
 
