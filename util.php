@@ -9,7 +9,7 @@
 function findBaseBranch(\Matks\PrestaShopRepoBulkEditor\BranchManager $branchManager, $repositoryName)
 {
     $baseBranch = $branchManager->findRepositoryBaseBranch($repositoryName);
-    echo '* Found base branch ' . $baseBranch . ' for prestashop:' . $repositoryName . PHP_EOL;
+    echo '* Found upstream base branch ' . $baseBranch . ' for prestashop:' . $repositoryName . PHP_EOL;
 
     if ($baseBranch === null) {
         echo '* Could not find base branch for repo prestashop :' . $repositoryName . PHP_EOL;
@@ -41,8 +41,7 @@ function checkFileExists(\Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager 
 function checkForkExistsAndCreateIfNeeded(
     \Matks\PrestaShopRepoBulkEditor\ForkManager $forkManager,
     $repositoryName
-)
-{
+) {
     $forkExists = $forkManager->checkForkExists($repositoryName);
 
     if (!$forkExists) {
@@ -72,8 +71,7 @@ function createPRToCreateFile(
     $path,
     $content,
     \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
-)
-{
+) {
     $debug = true;
 
     echo sprintf(
@@ -108,8 +106,7 @@ function createPRToMergeBranch(
     $pullRequestMessage,
     $pullRequestTitle,
     \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
-)
-{
+) {
     $debug = true;
 
     echo sprintf(

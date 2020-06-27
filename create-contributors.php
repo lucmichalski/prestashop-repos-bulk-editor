@@ -52,7 +52,7 @@ foreach ($modulesToProcess as $moduleToProcess) {
     }
 
     // CHECK 5 the right branch exists on fork
-    $branchAlreadyExists = $pullRequestManager->checkBranchExistsWithName('matks', $repositoryName, $baseBranch);
+    $branchAlreadyExists = $branchManager->checkBranchExistsWithName('matks', $repositoryName, $baseBranch);
     if (!$branchAlreadyExists) {
         echo '* Fork matks:' . $repositoryName . ' does not have branch ' . $baseBranch . PHP_EOL;
         continue;

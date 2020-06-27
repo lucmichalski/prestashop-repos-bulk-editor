@@ -39,25 +39,6 @@ class PullRequestsManager
         return false;
     }
 
-    /**
-     * @param $username
-     * @param $repositoryName
-     * @param $baseBranch
-     *
-     * @return bool
-     */
-    public function checkBranchExistsWithName($username, $repositoryName, $branch)
-    {
-        $references = $this->client->api('gitData')->references()->branches($username, $repositoryName);
-        $branches = [];
-
-        foreach ($references as $info) {
-            $branches[str_replace('refs/heads/', '', $info['ref'])] = str_replace('refs/heads/', '', $info['ref']);
-        }
-
-        return array_key_exists($branch, $branches);
-    }
-
     public function createPR($username, $repositoryName, $branch, $pullRequestTitle, $message)
     {
         $pullRequest = $this->client->api('pull_request')->create('prestashop', $repositoryName, array(
