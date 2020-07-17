@@ -99,7 +99,7 @@ class BranchManager
         $sha = $upstreamReferenceData['object']['sha'];
 
         $forkReferenceDataInput = [
-            'ref' => 'refs/heads/'.$branchName,
+            'ref' => 'refs/heads/' . $branchName,
             'sha' => $sha
         ];
 
@@ -110,5 +110,34 @@ class BranchManager
         );
 
         return true;
+    }
+
+    /**
+     * @param string $username
+     * @param string $repositoryName
+     * @param string $sourceBranchName
+     * @param string $newBranchName
+     *
+     * @return bool
+     *
+     * @throws \Github\Exception\MissingArgumentException
+     */
+    public function createBranchFrom($username, $repositoryName, $sourceBranchName, $newBranchName)
+    {
+        $sourceBranchData = $this->client->api('gitData')->references()->show($username, $repositoryName, 'heads/' . $sourceBranchName);
+        $sha = $sourceBranchData['object']['sha'];
+
+        $newBranchInputData = [
+            'ref' => 'refs/heads/' . $newBranchName,
+            'sha' => $sha
+        ];
+
+        $newBranchData = $this->client->api('gitData')->references()->create(
+            $username,
+            $repositoryName,
+            $newBranchInputData
+        );
+
+        return !empty($newBranchData);
     }
 }

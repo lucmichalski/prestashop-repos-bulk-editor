@@ -9,8 +9,8 @@ $client = new \Github\Client();
 $token = file_get_contents(__DIR__ . '/token.txt');
 $client->authenticate($token, null, Github\Client::AUTH_HTTP_TOKEN);
 
-$pullRequestTitle = 'Fix outdated license headers';
-$pullRequestMessage = 'Fix outdated license headers' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
+$pullRequestTitle = 'Fix license headers - part 2';
+$pullRequestMessage = 'Fix (again) license headers' . PHP_EOL . PHP_EOL . 'This PR is created automatically'
     . ' by [Matks PrestaShop Repositories Bulk Editor](https://github.com/matks/prestashop-repos-bulk-editor)';
 
 
@@ -21,6 +21,7 @@ $pullRequestManager = new \Matks\PrestaShopRepoBulkEditor\PullRequestsManager($c
 $licenseHeaderFixer = new \Matks\PrestaShopRepoBulkEditor\LicenseHeaderFixer($client);
 
 $modulesToProcess = require_once __DIR__ . '/modulesList.php';
+$workBranchName = 'fix-license-headers-2';
 
 foreach ($modulesToProcess as $moduleToProcess) {
     $repositoryName = $moduleToProcess;
@@ -51,12 +52,30 @@ foreach ($modulesToProcess as $moduleToProcess) {
         continue;
     }
 
-    // READY TO WORK
-    $licenseHeaderFixer->scanDir($repositoryName, $baseBranch);
+    // CHECK 5 the work branch does not exist yet on fork
+    $branchAlreadyExists = $branchManager->checkBranchExistsWithName('matks', $repositoryName, $workBranchName);
+    if ($branchAlreadyExists) {
+        echo '* Fork matks:' . $repositoryName . ' work branch already exists: ' . $baseBranch . PHP_EOL;
+        continue;
+    }
 
+    // READY TO WORK
+
+    // create branch
+    $result = $branchManager->createBranchFrom('matks', $repositoryName, $baseBranch, $workBranchName);
+    if (!$result) {
+        echo '* Fork matks:' . $repositoryName . ' failed to create work branch ' . $baseBranch . PHP_EOL;
+        continue;
+    }
+
+    // update the branch with fixed license headers
+    $licenseHeaderFixer->scanDir($repositoryName, $workBranchName);
+
+    // create the PR
     createPRToMergeBranch(
         $repositoryName,
         $baseBranch,
+        $workBranchName,
         $pullRequestMessage,
         $pullRequestTitle,
         $pullRequestManager

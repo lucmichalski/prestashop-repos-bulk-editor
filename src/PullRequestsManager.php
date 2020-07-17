@@ -39,11 +39,23 @@ class PullRequestsManager
         return false;
     }
 
-    public function createPR($username, $repositoryName, $branch, $pullRequestTitle, $message)
+    /**
+     * @param string $username
+     * @param string $repositoryName
+     * @param string $baseBranch
+     * @param string $forkBranch
+     * @param string $pullRequestTitle
+     * @param string $message
+     *
+     * @return array|string
+     *
+     * @throws \Github\Exception\MissingArgumentException
+     */
+    public function createPR($username, $repositoryName, $baseBranch, $forkBranch, $pullRequestTitle, $message)
     {
         $pullRequest = $this->client->api('pull_request')->create('prestashop', $repositoryName, array(
-            'base' => $branch,
-            'head' => 'matks:' . $branch,
+            'base' => $baseBranch,
+            'head' => 'matks:' . $forkBranch,
             'title' => $pullRequestTitle,
             'body' => $message
         ));
