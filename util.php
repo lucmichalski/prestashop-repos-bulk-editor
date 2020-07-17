@@ -55,6 +55,8 @@ function checkForkExistsAndCreateIfNeeded(
 /**
  * @param $repositoryName
  * @param $baseBranch
+ * @param $forkBranch
+ * @param $pullRequestMessage
  * @param $pullRequestTitle
  * @param \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager
  * @param $path
@@ -65,6 +67,7 @@ function checkForkExistsAndCreateIfNeeded(
 function createPRToCreateFile(
     $repositoryName,
     $baseBranch,
+    $forkBranch,
     $pullRequestMessage,
     $pullRequestTitle,
     \Matks\PrestaShopRepoBulkEditor\RepositoryFilesManager $filesManager,
@@ -77,7 +80,7 @@ function createPRToCreateFile(
     echo sprintf(
         '\o/ Creating PR for repo %s %s => %s',
         $repositoryName,
-        'matks:' . $baseBranch,
+        'matks:' . $forkBranch,
         'prestashop:' . $baseBranch
     ) . PHP_EOL;
 
@@ -94,7 +97,7 @@ function createPRToCreateFile(
     }
 
     try {
-        $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
+        $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $forkBranch, $pullRequestTitle, $pullRequestMessage);
     } catch (Github\Exception\RuntimeException $e) {
         echo '!!! Failed to create PR for prestashop:' . $repositoryName . PHP_EOL;
     }
@@ -103,6 +106,7 @@ function createPRToCreateFile(
 function createPRToMergeBranch(
     $repositoryName,
     $baseBranch,
+    $forkBranch,
     $pullRequestMessage,
     $pullRequestTitle,
     \Matks\PrestaShopRepoBulkEditor\PullRequestsManager $pullRequestManager
@@ -112,15 +116,19 @@ function createPRToMergeBranch(
     echo sprintf(
         '\o/ Creating PR for repo %s %s => %s',
         $repositoryName,
-        'matks:' . $baseBranch,
+        'matks:' . $forkBranch,
         'prestashop:' . $baseBranch
     ) . PHP_EOL;
 
-    $commitMessage = $pullRequestTitle;
-
     try {
-        $result = $pullRequestManager->createPR('prestashop', $repositoryName, $baseBranch, $pullRequestTitle, $pullRequestMessage);
-
+        $result = $pullRequestManager->createPR(
+            'prestashop',
+            $repositoryName,
+            $baseBranch,
+            $forkBranch,
+            $pullRequestTitle,
+            $pullRequestMessage
+        );
 
         echo printClickableLink($result['html_url'], 'PR '.$result['number'].' created on prestashop:'.$repositoryName).PHP_EOL;
     } catch (Github\Exception\RuntimeException $e) {

@@ -66,9 +66,11 @@ foreach ($modulesToProcess as $moduleToProcess) {
         continue;
     }
 
+    $forkBranch = $baseBranch;
     createPRToCreateFile(
         $repositoryName,
         $baseBranch,
+        $forkBranch,
         $pullRequestMessage,
         $pullRequestTitle,
         $filesManager,
