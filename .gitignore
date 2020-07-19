@@ -2,3 +2,4 @@ vendor/
 .idea
 token.txt
 .php_cs.cache
+core-weekly-*
