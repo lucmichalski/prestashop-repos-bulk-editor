@@ -61,7 +61,7 @@ $title = '## Releases'.PHP_EOL.PHP_EOL;
 foreach ($releasesData as $release) {
     $title.= sprintf(
         '* [%s](%s): [%s](%s)',
-        ucfirst($release['repository']),
+        $release['repository'],
         'https://github.com/PrestaShop/'.$release['repository'],
         $release['version'],
         $release['url']
