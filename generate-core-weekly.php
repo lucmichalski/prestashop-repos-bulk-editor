@@ -1,7 +1,7 @@
 <?php
 
 $coreWeeklyGeneratorDirPath = __DIR__ . '/../../prestashop/core-weekly-generator/';
-$currentWeekNumber = (new \DateTime())->format("W");
+$currentWeekNumber = (int)(new \DateTime())->format("W")-1;
 
 $coreWeeklyOutput = '';
 echo "Generating Core Weekly from core-weekly-generator ..." . PHP_EOL;
